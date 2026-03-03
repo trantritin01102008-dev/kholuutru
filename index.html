@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-<title>TRUY TÌM KHO BÁU - HIỆU ỨNG MƯỢT MÀ</title>
+<title>TRUY TÌM KHO BÁU - PHIÊN BẢN TRÁI TIM</title>
 
 <style>
-/* --- GIỮ NGUYÊN CSS GỐC CỦA BẠN --- */
 html, body { 
   margin: 0; padding: 0; min-height: 100%; 
   -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
@@ -63,7 +62,6 @@ body{
 #line3 { margin-left: 100px; }
 #line4 { margin-left: 160px; }
 
-.word-span { display: inline-block; white-space: nowrap; }
 .char { opacity: 0; display: inline-block; } 
 @keyframes revealChar { to { opacity: 1; } }
 
@@ -83,8 +81,23 @@ body{
 @keyframes fall { 0% { top: -10%; transform: translateX(0) rotate(0deg); } 100% { top: 110%; transform: translateX(100px) rotate(360deg); } }
 .banner{ position: relative; font-size:28px; font-weight:bold; color:#d63384; text-shadow:0 0 15px #ff99cc; white-space: nowrap; }
 .board{ display:grid; grid-template-columns:repeat(5,60px); gap: 10px; margin-top:12px; }
-.land-effect { position: fixed; width: 10px; height: 5px; border: 3px solid; border-radius: 50%; pointer-events: none; animation: shockwave 0.5s ease-out forwards; z-index: 60; transform: translate(-50%, -100%); }
-@keyframes shockwave { 0% { transform: translate(-50%, -100%) scale(1); opacity: 1.0; } 100% { transform: translate(-50%, -100%) scale(3.5); opacity: 0; } }
+
+/* HIỆU ỨNG TRÁI TIM DƯỚI CHÂN */
+.land-effect { 
+  position: fixed; 
+  width: 25px; height: 25px; 
+  background: currentColor; 
+  pointer-events: none; 
+  z-index: 5; 
+  clip-path: path('M12,21.35L10.55,20.03C5.4,15.36 2,12.27 2,8.5C2,5.41 4.42,3 7.5,3C9.24,3 10.91,3.81 12,5.08C13.09,3.81 14.76,3 16.5,3C19.58,3 22,5.41 22,8.5C22,12.27 18.6,15.36 13.45,20.03L12,21.35Z');
+  transform: translate(-50%, -50%);
+  animation: shockwave 0.5s ease-out forwards; 
+}
+@keyframes shockwave { 
+  0% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } 
+  100% { transform: translate(-50%, -50%) scale(3.5); opacity: 0; } 
+}
+
 .player{ width:16px; height:32px; display:flex; flex-direction:column; align-items:center; position: absolute; z-index: 10; pointer-events: none; transition: left 0.6s ease-out, top 0.6s ease-out, opacity 0.5s ease; } 
 @keyframes activeWobble { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.1) rotate(3deg); } }
 .is-active-player { animation: activeWobble 1s infinite ease-in-out; }
@@ -103,7 +116,6 @@ body{
 .treasure-item { font-size: 32px; position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; animation: treasureJump 0.5s infinite; z-index: 99; }
 .confetti { position: fixed; width: 8px; height: 8px; z-index: 10001; pointer-events: none; }
 
-/* --- HIỆU ỨNG PHÁO HOA TIA SÁNG --- */
 .firework { position: fixed; bottom: 0; z-index: 10001; pointer-events: none; }
 .explosion-particle { position: fixed; z-index: 10001; pointer-events: none; }
 
@@ -185,14 +197,15 @@ initSakura();
 let currentPlayer = 0;
 const colors = ["#ff4d4d","#4d94ff","#4dcc4d","#ffcc00"];
 let teamNames = []; let players = []; 
-let treasureIndex = 0; // GIỮ NGUYÊN Ô ĐẦU TIÊN
+// FIX: KHO BÁU LUÔN Ở Ô SỐ 0
+let treasureIndex = 0; 
 let treasureFound = false; let timerInterval = null; let cellQuestions = [];
 
 function startGame() {
   teamNames = [];
   for(let i=1; i<=4; i++) {
-    let name = document.getElementById("name" + i).value.trim();
-    teamNames.push(name.substring(0, 15) || ("Đội " + i));
+    let raw = document.getElementById("name" + i).value.trim();
+    teamNames.push(raw.slice(0, 15) || ("Đội " + i));
   }
   document.getElementById("setupScreen").classList.remove("active");
   initGameStructure(); runCinematicIntro();
@@ -240,16 +253,18 @@ function runCinematicIntro() {
   setTimeout(() => container.className = "mainContainer cam-pos-bot-right", 4500);
   setTimeout(() => { container.className = "mainContainer cam-pos-start"; spawnPlayers(); }, 6500);
   setTimeout(() => { container.className = "mainContainer cam-pos-full"; }, 8500);
+  
   setTimeout(() => {
     welcome.classList.add("active");
     typeWriter("Chào mừng", "line1", 700);
-    setTimeout(() => typeWriter("đến với", "line2", 700), 1000);
-    setTimeout(() => typeWriter("bình nguyên", "line3", 700), 2000);
-    setTimeout(() => typeWriter("vô tận...", "line4", 700), 3000);
+    setTimeout(() => typeWriter("đến với", "line2", 700), 800);
+    setTimeout(() => typeWriter("bình nguyên", "line3", 700), 1600);
+    setTimeout(() => typeWriter("vô tận...", "line4", 700), 2400);
+    
     setTimeout(() => { 
         welcome.classList.remove("active"); 
         setTimeout(() => { updateTurnUI(); }, 1000); 
-    }, 4100); 
+    }, 3500); 
   }, 10000);
 }
 
@@ -278,7 +293,6 @@ function createPiece(x, y, dir) {
   update();
 }
 
-/* --- HÀM PHÁO HOA CÓ TIA SẮC NÉT --- */
 function createFirework() {
   const color = colors[Math.floor(Math.random()*4)];
   const f = document.createElement("div"); f.className = "firework";
@@ -288,11 +302,9 @@ function createFirework() {
   f.style.background = `linear-gradient(to top, transparent, ${color}, #ffffff)`;
   f.style.borderRadius = "2px";
   f.style.boxShadow = `0 0 12px ${color}`;
-  
   document.body.appendChild(f);
   let posY = window.innerHeight; const targetY = Math.random() * (window.innerHeight/2) + 50;
   const speed = 25;
-
   function lift() {
     posY -= speed; f.style.top = posY + "px";
     if(posY > targetY) requestAnimationFrame(lift);
@@ -311,11 +323,9 @@ function createExplosionParticle(x, y, color) {
   p.style.background = `linear-gradient(to top, ${color}, #ffffff)`;
   p.style.borderRadius = "2px";
   p.style.boxShadow = `0 0 8px ${color}`;
-  
   document.body.appendChild(p);
   const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 10 + 6;
   let vx = Math.cos(angle) * speed; let vy = Math.sin(angle) * speed; let opacity = 1;
-
   function update() {
     x += vx; y += vy; vy += 0.2; opacity -= 0.02;
     p.style.left = x + "px"; p.style.top = y + "px"; p.style.opacity = opacity;
@@ -347,7 +357,8 @@ function selectCell(index) {
   const player = players[currentPlayer];
   const r = Math.floor(player.position/5), c = player.position%5;
   const nr = Math.floor(index/5), nc = index%5;
-  if(Math.abs(r-nr) + Math.abs(c-nc) === 1) showQuestion(index);
+  // Cho phép click vào chính ô hiện tại nếu đó là ô kho báu (ô 0)
+  if(Math.abs(r-nr) + Math.abs(c-nc) === 1 || (player.position === index && index === treasureIndex)) showQuestion(index);
 }
 function triggerCosmicVisual(onEffectDone) {
   const container = document.getElementById('cosmicEffect');
@@ -419,6 +430,7 @@ function showQuestion(index) {
     }
   }, 1000);
 }
+
 function movePlayer(index) {
   const player = players[currentPlayer]; const princess = player.element;
   const targetCell = document.getElementById("board").children[index];
@@ -435,9 +447,9 @@ function movePlayer(index) {
   }, 100);
   setTimeout(() => {
     const effect = document.createElement("div"); effect.className = "land-effect";
-    effect.style.borderColor = colors[currentPlayer];
+    effect.style.color = colors[currentPlayer];
     effect.style.left = (cellRect.left + myNewPos.x + 8) + "px";
-    effect.style.top = (cellRect.top + myNewPos.y + 30) + "px";
+    effect.style.top = (cellRect.top + myNewPos.y + 28) + "px";
     document.body.appendChild(effect);
     setTimeout(() => effect.remove(), 500);
     document.body.removeChild(clone);
