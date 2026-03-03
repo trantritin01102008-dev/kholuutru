@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>TRUY TÌM KHO BÁU - HIỆU ỨNG MƯỢT MÀ</title>
+
+<style>
+/* --- GIỮ NGUYÊN CSS GỐC CỦA BẠN --- */
+html, body { 
+  margin: 0; padding: 0; min-height: 100%; 
+  -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent; 
+}
+body{
+  font-family:'Segoe UI',sans-serif;
+  background: radial-gradient(circle at 20% 30%, #ffd6eb 0%, transparent 40%), linear-gradient(135deg,#ffe6f2,#fff5fa);
+  background-attachment: fixed;
+}
+
+#cam-viewport {
+  width: 100vw; height: 100vh;
+  overflow: hidden;
+  display: flex; justify-content: center; align-items: center;
+  perspective: 1200px;
+}
+
+.mainContainer {
+  position: relative; z-index: 2; padding: 30px 10px; text-align: center;
+  transition: transform 1.5s cubic-bezier(0.45, 0.05, 0.55, 0.95);
+  transform-origin: center center;
+}
+
+.cam-pos-start { transform: scale(2.8) translate(100px, 100px); }
+.cam-pos-top-right { transform: scale(2.8) translate(-100px, 100px); }
+.cam-pos-bot-left { transform: scale(2.8) translate(100px, -100px); }
+.cam-pos-bot-right { transform: scale(2.8) translate(-100px, -100px); }
+.cam-pos-full { transform: scale(1) translate(0, 0); }
+
+#welcomeMsgContainer {
+  position: fixed; inset: 0;
+  z-index: 99999; opacity: 0; pointer-events: none;
+  transition: opacity 1s ease-out; 
+  will-change: opacity;
+  transform: translateZ(0); 
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  display: flex; justify-content: center; align-items: center;
+  background: rgba(0, 0, 0, 0.7);
+}
+#welcomeMsgContainer.active { opacity: 1; pointer-events: auto; }
+
+.welcome-box {
+  color: #ffffff; font-weight: bold; font-size: 32px;
+  text-align: left; 
+  text-shadow: 0 0 20px #ff6fa5;
+  width: 90vw;
+}
+.welcome-line { display: block; margin: 8px 0; }
+#line1 { margin-left: 0; }
+#line2 { margin-left: 40px; }
+#line3 { margin-left: 100px; }
+#line4 { margin-left: 160px; }
+
+.word-span { display: inline-block; white-space: nowrap; }
+.char { opacity: 0; display: inline-block; } 
+@keyframes revealChar { to { opacity: 1; } }
+
+.cell{ 
+  width:60px; height:60px; 
+  background-color: rgba(255, 250, 255, 0.6); 
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M15 15 Q30 15 30 30 Q15 30 15 15' fill='%23ffcce6'/%3E%3Cpath d='M85 15 Q70 15 70 30 Q85 30 85 15' fill='%23ffcce6'/%3E%3Cpath d='M15 85 Q30 85 30 70 Q15 70 15 85' fill='%23ffcce6'/%3E%3Cpath d='M85 85 Q70 85 70 70 Q85 70 85 85' fill='%23ffcce6'/%3E%3Ccircle cx='50' cy='50' r='12' fill='none' stroke='%23ffb3d9' stroke-width='1.5'/%3E%3Cpath d='M50 38 L50 62 M38 50 L62 50' stroke='%23ffb3d9' stroke-width='1'/%3E%3Ccircle cx='50' cy='15' r='4' fill='%23ffb3d9' opacity='0.6'/%3E%3Ccircle cx='50' cy='85' r='4' fill='%23ffb3d9' opacity='0.6'/%3E%3Ccircle cx='15' cy='50' r='4' fill='%23ffb3d9' opacity='0.6'/%3E%3Ccircle cx='85' cy='50' r='4' fill='%23ffb3d9' opacity='0.6'/%3E%3C/svg%3E");
+  background-size: 100% 100%; border-radius:12px; border:2px solid #ffdae9; position:relative; cursor:pointer; box-shadow: 0 4px 0 #ffb3d9; transition: all 0.1s ease;
+}
+.cell:active { transform: translateY(2px); box-shadow: 0 2px 0 #ffb3d9; }
+.boardWrapper { display:inline-block; padding: 30px; background: url('background.jpg') no-repeat center center; background-size: cover; border-radius:35px; box-shadow: 0 15px 35px rgba(214,51,132,0.3); backdrop-filter:blur(2px); border: 4px solid #ffb3d9; position: relative; }
+.banner::before, .banner::after { content: "❧"; font-size: 40px; color: #ffb3d9; position: absolute; top: -5px; opacity: 0.6; }
+.banner::before { left: -30px; transform: scaleX(-1); }
+.banner::after { right: -30px; }
+.boardWrapper::before { content: "✧ ♛ ✧"; position: absolute; top: -15px; left: 50%; transform: translateX(-50%); color: #d63384; font-size: 18px; text-shadow: 0 0 10px #ff99cc; white-space: nowrap; }
+.sakura { position: fixed; top: -10%; z-index: 1; background-color: #ffb7d5; border-radius: 100% 0 100% 0; opacity: 0.7; pointer-events: none; animation: fall linear infinite; }
+@keyframes fall { 0% { top: -10%; transform: translateX(0) rotate(0deg); } 100% { top: 110%; transform: translateX(100px) rotate(360deg); } }
+.banner{ position: relative; font-size:28px; font-weight:bold; color:#d63384; text-shadow:0 0 15px #ff99cc; white-space: nowrap; }
+.board{ display:grid; grid-template-columns:repeat(5,60px); gap: 10px; margin-top:12px; }
+.land-effect { position: fixed; width: 10px; height: 5px; border: 3px solid; border-radius: 50%; pointer-events: none; animation: shockwave 0.5s ease-out forwards; z-index: 60; transform: translate(-50%, -100%); }
+@keyframes shockwave { 0% { transform: translate(-50%, -100%) scale(1); opacity: 1.0; } 100% { transform: translate(-50%, -100%) scale(3.5); opacity: 0; } }
+.player{ width:16px; height:32px; display:flex; flex-direction:column; align-items:center; position: absolute; z-index: 10; pointer-events: none; transition: left 0.6s ease-out, top 0.6s ease-out, opacity 0.5s ease; } 
+@keyframes activeWobble { 0%, 100% { transform: scale(1) rotate(0deg); } 50% { transform: scale(1.1) rotate(3deg); } }
+.is-active-player { animation: activeWobble 1s infinite ease-in-out; }
+.teamNameLabel { font-size: 7px; color: #ffffff; white-space: nowrap; font-weight: bold; position: absolute; top: -18px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.7); padding: 1px 4px; border-radius: 3px; }
+.hair-back { position: absolute; width: 14px; height: 18px; background: #543324; border-radius: 40% 40% 20% 20%; top: 3px; z-index: 1; }
+.hair-front { position: absolute; width: 10px; height: 4px; background: #543324; border-radius: 50% 50% 0 0; top: 2px; z-index: 4; }
+.crown{ width:6px; height:2px; background:gold; border-radius:1px 1px 0 0; position:relative; z-index: 5; margin-bottom: -1px; }
+.head{ width:10px; height:10px; background:#ffe0bd; border-radius:50%; position: relative; z-index: 3; }
+.face { position: absolute; width: 100%; height: 100%; top:0; left:0; }
+.face::before { content: ''; position: absolute; width: 1px; height: 1px; background: #333; border-radius: 50%; top: 4px; left: 2px; box-shadow: 4px 0 #333; }
+.face::after { content: ''; position: absolute; width: 2px; height: 1px; border-bottom: 1px solid #ff5e5e; border-radius: 50%; top: 7px; left: 3px; }
+.skirt-container { width: 14px; height: 12px; position: relative; margin-top: -1px; border-radius: 50% 50% 20% 20%; overflow: hidden; z-index: 2; }
+@keyframes jumpArcAction { 0% { transform: translateY(0); } 50% { transform: translateY(-25px); } 100% { transform: translateY(0); } } 
+.is-jumping { animation: jumpArcAction 0.8s ease-in-out forwards; }
+@keyframes treasureJump { 0%, 100% { transform: scale(1) translateY(0); } 50% { transform: scale(1.2) translateY(-15px); } } 
+.treasure-item { font-size: 32px; position: absolute; inset: 0; display: flex; justify-content: center; align-items: center; animation: treasureJump 0.5s infinite; z-index: 99; }
+.confetti { position: fixed; width: 8px; height: 8px; z-index: 10001; pointer-events: none; }
+
+/* --- HIỆU ỨNG PHÁO HOA TIA SÁNG --- */
+.firework { position: fixed; bottom: 0; z-index: 10001; pointer-events: none; }
+.explosion-particle { position: fixed; z-index: 10001; pointer-events: none; }
+
+.modalOverlay{ position:fixed; inset:0; background:rgba(0,0,0,0.4); backdrop-filter:blur(4px); display:flex; justify-content:center; align-items:center; opacity:0; pointer-events:none; transition: 0.3s; z-index:10000; }
+.modalOverlay.active { opacity:1; pointer-events:auto; }
+.modalBox{ background:white; padding:25px; border-radius:30px; min-width:280px; max-width: 350px; border:3px solid #ffb3d9; text-align: center; }
+.nameInputGroup { margin-bottom: 10px; text-align: left; }
+.nameInputGroup label { display: flex; justify-content: space-between; font-weight: bold; color: #d63384; font-size: 12px; }
+.nameInputGroup input { width: 100%; padding: 6px; border: 2px solid #ffb3d9; border-radius: 8px; box-sizing: border-box; }
+.setupBtn { margin-top:8px; padding: 10px 20px; border: none; border-radius: 20px; background: linear-gradient(45deg, #ff9ecf, #ff6fa5); color: white; font-weight: bold; cursor: pointer; font-size: 12px; box-shadow: 0 4px 0 #e65a91; }
+.setupBtn:active { transform: translateY(2px); box-shadow: 0 2px 0 #e65a91; }
+.optionsGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+.answerBtn { padding: 12px 8px; border: none; border-radius: 15px; background: #fff; color: #d63384; font-weight: bold; cursor: pointer; border: 2px solid #ffb3d9; box-shadow: 0 4px 0 #ffb3d9; transition: all 0.1s ease; }
+.answerBtn:active { transform: translateY(2px); box-shadow: 0 2px 0 #ffb3d9; }
+.timer-display { font-size: 18px; font-weight: bold; color: #ff4d4d; margin-bottom: 8px; border: 2px solid #ff4d4d; display: inline-block; padding: 4px 10px; border-radius: 10px; }
+.essayInput { width: 100%; padding: 10px; margin-top: 10px; border: 2px solid #ffb3d9; border-radius: 10px; text-align: center; font-weight: bold; }
+#cosmicEffect { position: fixed; inset: 0; z-index: 20000; pointer-events: none; display: none; background: transparent; overflow: hidden; }
+.cosmic-vortex { position: absolute; top: 50%; left: 50%; width: 200vw; height: 200vw; transform: translate(-50%, -50%) scale(2); background: radial-gradient(circle, transparent 20%, rgba(214, 51, 132, 0.4) 40%, transparent 70%); mask-image: conic-gradient(from 0deg, black, transparent 10%, black 20%, transparent 40%, black 60%, transparent 80%, black); -webkit-mask-image: conic-gradient(from 0deg, black, transparent 10%, black 20%, transparent 40%, black 60%, transparent 80%, black); }
+@keyframes absorb { 0% { transform: translate(-50%, -50%) scale(1.5) rotate(0deg); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-50%, -50%) scale(0) rotate(720deg); opacity: 1; } }
+.cosmic-explosion { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; background: radial-gradient(circle, #fff 0%, #ff9ecf 40%, transparent 70%); border-radius: 50%; transform: translate(-50%, -50%) scale(0); z-index: 20001; }
+@keyframes release { 0% { transform: translate(-50%, -50%) scale(0); opacity: 1; } 40% { transform: translate(-50%, -50%) scale(100); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(300); opacity: 0; } }
+</style>
+</head>
+
+<body>
+<div id="sakura-layer"></div>
+<div id="welcomeMsgContainer">
+  <div class="welcome-box">
+    <div id="line1" class="welcome-line"></div>
+    <div id="line2" class="welcome-line"></div>
+    <div id="line3" class="welcome-line"></div>
+    <div id="line4" class="welcome-line"></div>
+  </div>
+</div>
+<div id="cosmicEffect">
+  <div class="cosmic-vortex" id="vortex1"></div>
+  <div class="cosmic-vortex" id="vortex2" style="animation-delay: 0.3s; scale: 1.2;"></div>
+  <div class="cosmic-explosion" id="explosion"></div>
+</div>
+<div class="modalOverlay active" id="setupScreen">
+  <div class="modalBox">
+    <h2 style="color:#d63384; margin-top:0; font-size: 20px;">Đăng ký đội chơi</h2>
+    <div id="setupForm">
+      <div class="nameInputGroup"><label>Đội 1 <span style="font-size:9px; font-weight:normal;">(Tối đa 15 ký tự)</span></label><input type="text" id="name1" maxlength="15" oninput="this.value = this.value.slice(0, 15)" placeholder="Tên đội 1..."></div>
+      <div class="nameInputGroup"><label>Đội 2 <span style="font-size:9px; font-weight:normal;">(Tối đa 15 ký tự)</span></label><input type="text" id="name2" maxlength="15" oninput="this.value = this.value.slice(0, 15)" placeholder="Tên đội 2..."></div>
+      <div class="nameInputGroup"><label>Đội 3 <span style="font-size:9px; font-weight:normal;">(Tối đa 15 ký tự)</span></label><input type="text" id="name3" maxlength="15" oninput="this.value = this.value.slice(0, 15)" placeholder="Tên đội 3..."></div>
+      <div class="nameInputGroup"><label>Đội 4 <span style="font-size:9px; font-weight:normal;">(Tối đa 15 ký tự)</span></label><input type="text" id="name4" maxlength="15" oninput="this.value = this.value.slice(0, 15)" placeholder="Tên đội 4..."></div>
+      <button class="setupBtn" onclick="startGame()">BẮT ĐẦU CHƠI</button>
+    </div>
+  </div>
+</div>
+<div id="cam-viewport">
+  <div class="mainContainer" id="mainContainer">
+    <div class="boardWrapper">
+      <div class="banner">🌹 TRUY TÌM KHO BÁU 🌹</div>
+      <div id="turnIndicator" style="margin:6px; font-weight:bold; font-size:14px;"></div>
+      <div id="board" class="board"></div>
+    </div>
+  </div>
+</div>
+<div class="modalOverlay" id="modal"><div class="modalBox" id="modalContent"></div></div>
+
+<script>
+const questionBank = [{q:"Mặt trời mọc ở hướng nào?", a:["Đông","Tây","Nam","Bắc"], c:0},{q:"Số nào lớn nhất trong dãy?", a:["10","20","5","15"], c:1},{q:"Màu lá cây quang hợp là?", a:["Xanh lá","Đỏ","Vàng","Tím"], c:0},{q:"Con vật nào kêu Gâu Gâu?", a:["Mèo","Chó","Gà","Vịt"], c:1},{q:"Trái đất có hình gì?", a:["Vuông","Tròn","Cầu","Phẳng"], c:2},{q:"Thủ đô Việt Nam là?", a:["Hà Nội","TP.HCM","Đà Nẵng","Cần Thơ"], c:0},{q:"Một tuần có bao nhiêu ngày?", a:["5","6","7","8"], c:2},{q:"Xe đạp phổ thông có mấy bánh?", a:["1","2","3","4"], c:1},{q:"Quả gì cắt ngang có hình sao?", a:["Vuông","Cam","Ổi","Xoài"], c:0},{q:"Con gì hay kêu Cạp Cạp?", a:["Vịt","Ngan","Ngỗng","Gà"], c:0},{q:"Cầu vồng có mấy màu chính?", a:["5","6","7","9"], c:2},{q:"Hoa gì nở trong đầm mùa hè?", a:["Hoa Sen","Hoa Mai","Hoa Hồng","Hoa Lan"], c:0},{q:"Chữ cái đầu bảng chữ cái VN?", a:["A","Ă","Â","B"], c:0},{q:"Con gì mang nhà trên lưng?", a:["Ốc sên","Rùa","Cả hai","Sên trần"], c:2},{q:"Quả gì vỏ đỏ ruột trắng hạt đen?", a:["Dưa hấu","Thanh long","Táo","Lê"], c:1},{q:"7 cộng 8 bằng bao nhiêu?", a:["14","15","16","17"], c:1},{q:"Vua của rừng xanh là loài nào?", a:["Hổ","Sư tử","Voi","Gấu"], c:1},{q:"Tháng nào thường có 28 ngày?", a:["Tháng 1","Tháng 2","Tháng 3","Tháng 4"], c:1},{q:"Hành tinh gần mặt trời nhất?", a:["Sao Kim","Sao Thủy","Trái Đất","Sao Hỏa"], c:1},{q:"Con gì biết bay và hót?", a:["Chim","Sóc","Cá","Chuột"], c:0},{q:"Dụng cụ nào dùng để cắt giấy?", a:["Bút","Thước","Kéo","Gôm"], c:2},{q:"Lá cờ VN có ngôi sao màu?", a:["Đỏ","Vàng","Trắng","Xanh"], c:1},{q:"Đỏ trộn với xanh dương ra màu?", a:["Tím","Cam","Xanh lá","Nâu"], c:0},{q:"Đại đương nào lớn nhất thế giới?", a:["Đại Tây Dương","Thái Bình Dương","Ấn Độ Dương","Bắc Băng Dương"], c:1}];
+const treasureQuestion = { q: "Câu hỏi cuối cùng: Ai là người xinh đẹp nhất thế gian? (Gợi ý: Công chúa)", ans: "công chúa" };
+
+function initSakura() {
+    const container = document.getElementById('sakura-layer');
+    for (let i = 0; i < 20; i++) {
+        const petal = document.createElement('div'); petal.className = 'sakura';
+        petal.style.left = Math.random() * 100 + 'vw';
+        petal.style.width = Math.random() * 10 + 8 + 'px'; petal.style.height = petal.style.width;
+        petal.style.animationDuration = Math.random() * 3 + 5 + 's';
+        container.appendChild(petal);
+    }
+}
+initSakura();
+
+let currentPlayer = 0;
+const colors = ["#ff4d4d","#4d94ff","#4dcc4d","#ffcc00"];
+let teamNames = []; let players = []; 
+let treasureIndex = 0; // GIỮ NGUYÊN Ô ĐẦU TIÊN
+let treasureFound = false; let timerInterval = null; let cellQuestions = [];
+
+function startGame() {
+  teamNames = [];
+  for(let i=1; i<=4; i++) {
+    let name = document.getElementById("name" + i).value.trim();
+    teamNames.push(name.substring(0, 15) || ("Đội " + i));
+  }
+  document.getElementById("setupScreen").classList.remove("active");
+  initGameStructure(); runCinematicIntro();
+}
+
+function initGameStructure() {
+  const board = document.getElementById("board"); board.innerHTML = "";
+  let shuffledQuestions = [...questionBank].sort(() => Math.random() - 0.5);
+  let qPointer = 0;
+  for(let i=0; i<25; i++) {
+    const cell = document.createElement("div"); cell.className = "cell";
+    cell.onclick = () => selectCell(i); board.appendChild(cell);
+    if(i === treasureIndex) { cellQuestions[i] = { ...treasureQuestion, isTreasure: true, answered: false }; }
+    else { cellQuestions[i] = { ...shuffledQuestions[qPointer % shuffledQuestions.length], answered: false }; qPointer++; }
+  }
+}
+
+function spawnPlayers() {
+  const board = document.getElementById("board"); players = [];
+  for(let i=0; i<4; i++) {
+    const pEl = createPrincess(colors[i], teamNames[i]);
+    players.push({ element: pEl, position: 0, order: i });
+    board.children[0].appendChild(pEl);
+  }
+  arrangePlayersInCell(0);
+}
+
+function typeWriter(text, elementId, totalTime = 700) {
+  const element = document.getElementById(elementId); element.innerHTML = "";
+  const timePerChar = totalTime / text.length;
+  text.split("").forEach((char, i) => {
+    const charSpan = document.createElement("span"); charSpan.className = "char";
+    charSpan.innerHTML = char === " " ? "&nbsp;" : char;
+    charSpan.style.animation = `revealChar 0.1s ${i * timePerChar}ms forwards`;
+    element.appendChild(charSpan);
+  });
+}
+
+function runCinematicIntro() {
+  const container = document.getElementById("mainContainer");
+  const welcome = document.getElementById("welcomeMsgContainer");
+  container.className = "mainContainer cam-pos-start";
+  setTimeout(() => container.className = "mainContainer cam-pos-top-right", 1500);
+  setTimeout(() => container.className = "mainContainer cam-pos-bot-left", 3000);
+  setTimeout(() => container.className = "mainContainer cam-pos-bot-right", 4500);
+  setTimeout(() => { container.className = "mainContainer cam-pos-start"; spawnPlayers(); }, 6500);
+  setTimeout(() => { container.className = "mainContainer cam-pos-full"; }, 8500);
+  setTimeout(() => {
+    welcome.classList.add("active");
+    typeWriter("Chào mừng", "line1", 700);
+    setTimeout(() => typeWriter("đến với", "line2", 700), 1000);
+    setTimeout(() => typeWriter("bình nguyên", "line3", 700), 2000);
+    setTimeout(() => typeWriter("vô tận...", "line4", 700), 3000);
+    setTimeout(() => { 
+        welcome.classList.remove("active"); 
+        setTimeout(() => { updateTurnUI(); }, 1000); 
+    }, 4100); 
+  }, 10000);
+}
+
+function celebrate() {
+  const end = Date.now() + 5000;
+  (function frame() {
+    createPiece(0, Math.random(), 1); createPiece(window.innerWidth, Math.random(), -1);
+    if(Math.random() > 0.8) createFirework();
+    if (Date.now() < end) requestAnimationFrame(frame);
+  }());
+  document.getElementById("modalContent").innerHTML = `<h2>🎉 CHIẾN THẮNG 🎉</h2><p>${teamNames[currentPlayer]} đã thắng!</p>`;
+  document.getElementById("modal").classList.add("active");
+}
+
+function createPiece(x, y, dir) {
+  const p = document.createElement("div"); p.className = "confetti";
+  p.style.left = x + "px"; p.style.top = (y * window.innerHeight) + "px";
+  p.style.backgroundColor = colors[Math.floor(Math.random()*4)];
+  document.body.appendChild(p);
+  const vX = (Math.random() * 8 + 4) * dir; let vY = Math.random() * -15 - 8;
+  function update() {
+    x += vX; y += vY/window.innerHeight; vY += 0.4;
+    p.style.transform = `translate(${x-parseInt(p.style.left)}px, ${y*window.innerHeight-parseInt(p.style.top)}px) rotate(${y*360}deg)`;
+    if(y*window.innerHeight < window.innerHeight) requestAnimationFrame(update); else p.remove();
+  }
+  update();
+}
+
+/* --- HÀM PHÁO HOA CÓ TIA SẮC NÉT --- */
+function createFirework() {
+  const color = colors[Math.floor(Math.random()*4)];
+  const f = document.createElement("div"); f.className = "firework";
+  const startX = Math.random() * window.innerWidth;
+  f.style.left = startX + "px";
+  f.style.width = "4px"; f.style.height = "30px";
+  f.style.background = `linear-gradient(to top, transparent, ${color}, #ffffff)`;
+  f.style.borderRadius = "2px";
+  f.style.boxShadow = `0 0 12px ${color}`;
+  
+  document.body.appendChild(f);
+  let posY = window.innerHeight; const targetY = Math.random() * (window.innerHeight/2) + 50;
+  const speed = 25;
+
+  function lift() {
+    posY -= speed; f.style.top = posY + "px";
+    if(posY > targetY) requestAnimationFrame(lift);
+    else {
+      for(let i=0; i<25; i++) createExplosionParticle(startX, targetY, color);
+      f.remove();
+    }
+  }
+  lift();
+}
+
+function createExplosionParticle(x, y, color) {
+  const p = document.createElement("div"); p.className = "explosion-particle";
+  p.style.left = x + "px"; p.style.top = y + "px";
+  p.style.width = "3px"; p.style.height = "18px";
+  p.style.background = `linear-gradient(to top, ${color}, #ffffff)`;
+  p.style.borderRadius = "2px";
+  p.style.boxShadow = `0 0 8px ${color}`;
+  
+  document.body.appendChild(p);
+  const angle = Math.random() * Math.PI * 2; const speed = Math.random() * 10 + 6;
+  let vx = Math.cos(angle) * speed; let vy = Math.sin(angle) * speed; let opacity = 1;
+
+  function update() {
+    x += vx; y += vy; vy += 0.2; opacity -= 0.02;
+    p.style.left = x + "px"; p.style.top = y + "px"; p.style.opacity = opacity;
+    const rot = Math.atan2(vy, vx) * (180/Math.PI) + 90;
+    p.style.transform = `rotate(${rot}deg)`;
+    if(opacity > 0) requestAnimationFrame(update); else p.remove();
+  }
+  update();
+}
+
+function createPrincess(color, name){
+  const p = document.createElement("div"); p.className = "player";
+  p.innerHTML = `<div class="teamNameLabel">${name}</div><div class="hair-back"></div><div class="hair-front"></div><div class="crown"></div><div class="head"><div class="face"></div></div><div class="skirt-container" style="background:${color}"></div>`;
+  return p;
+}
+function getPositionsForCount(count) {
+  if (count === 1) return [{ x: 22, y: 12 }];
+  if (count === 2) return [{ x: 6, y: 12 }, { x: 38, y: 12 }]; 
+  if (count === 3) return [{ x: 6, y: 24 }, { x: 38, y: 24 }, { x: 22, y: 4 }]; 
+  return [{ x: 6, y: 24 }, { x: 38, y: 24 }, { x: 6, y: 4 }, { x: 38, y: 4 }]; 
+}
+function arrangePlayersInCell(cellIndex) {
+  const cellPlayers = players.filter(p => p.position === cellIndex).sort((a,b) => a.order - b.order);
+  const posList = getPositionsForCount(cellPlayers.length);
+  cellPlayers.forEach((p, i) => { if (posList[i]) { p.element.style.left = posList[i].x + "px"; p.element.style.top = posList[i].y + "px"; } });
+}
+function selectCell(index) {
+  if(treasureFound) return;
+  const player = players[currentPlayer];
+  const r = Math.floor(player.position/5), c = player.position%5;
+  const nr = Math.floor(index/5), nc = index%5;
+  if(Math.abs(r-nr) + Math.abs(c-nc) === 1) showQuestion(index);
+}
+function triggerCosmicVisual(onEffectDone) {
+  const container = document.getElementById('cosmicEffect');
+  const vortex1 = document.getElementById('vortex1');
+  const vortex2 = document.getElementById('vortex2');
+  const explosion = document.getElementById('explosion');
+  container.style.display = 'block';
+  vortex1.style.animation = 'absorb 2s forwards';
+  vortex2.style.animation = 'absorb 2s 0.3s forwards';
+  setTimeout(() => {
+    explosion.style.animation = 'release 1.5s ease-out forwards';
+    setTimeout(() => { onEffectDone(); }, 1000);
+    setTimeout(() => { container.style.display = 'none'; vortex1.style.animation = ''; vortex2.style.animation = ''; explosion.style.animation = ''; }, 1500);
+  }, 2000);
+}
+function showQuestion(index) {
+  const qData = cellQuestions[index];
+  if(qData.answered && !qData.isTreasure) { movePlayer(index); return; }
+  const modal = document.getElementById("modal");
+  const modalContent = document.getElementById("modalContent");
+  if (qData.isTreasure) {
+    modalContent.innerHTML = `<div class="timer-display">⏱️ <span id="timerValue">15</span>s</div><h3 style="color:#d63384;">💎 KHO BÁU! 💎</h3><p>${qData.q}</p><input type="text" id="essayAns" class="essayInput"><br><button class="setupBtn" id="submitEssay">XÁC NHẬN</button>`;
+    document.getElementById("submitEssay").onclick = () => {
+      const userAns = document.getElementById("essayAns").value.trim().toLowerCase();
+      clearInterval(timerInterval); modal.classList.remove("active");
+      triggerCosmicVisual(() => {
+        if(userAns === qData.ans) {
+          modalContent.innerHTML = "<h2 style='color:green;'>ĐÚNG RỒI! 👑</h2>";
+          modal.classList.add("active");
+          setTimeout(() => { modal.classList.remove("active"); movePlayer(index); }, 800);
+        } else {
+          modalContent.innerHTML = "<h2 style='color:red;'>SAI RỒI! ❌</h2>";
+          modal.classList.add("active");
+          setTimeout(() => { modal.classList.remove("active"); nextTurn(); }, 800);
+        }
+      });
+    };
+  } else {
+    modalContent.innerHTML = `<div class="timer-display">⏱️ <span id="timerValue">15</span>s</div><h3 style="color:#d63384;">${qData.q}</h3><div class="optionsGrid" id="optionsArea"></div>`;
+    qData.a.forEach((txt, i) => {
+      const btn = document.createElement("button"); btn.className = "answerBtn";
+      btn.innerHTML = `<span>${["A","B","C","D"][i]}</span> ${txt}`;
+      btn.onclick = () => {
+        clearInterval(timerInterval); modal.classList.remove("active");
+        triggerCosmicVisual(() => {
+          if(i === qData.c) {
+            qData.answered = true;
+            modalContent.innerHTML = "<h2 style='color:green;'>ĐÚNG RỒI! 👑</h2>";
+            modal.classList.add("active");
+            setTimeout(() => { modal.classList.remove("active"); movePlayer(index); }, 800);
+          } else {
+            modalContent.innerHTML = "<h2 style='color:red;'>SAI RỒI! ❌</h2>";
+            modal.classList.add("active");
+            setTimeout(() => { modal.classList.remove("active"); nextTurn(); }, 800);
+          }
+        });
+      };
+      document.getElementById("optionsArea").appendChild(btn);
+    });
+  }
+  modal.classList.add("active");
+  let timeLeft = 15;
+  timerInterval = setInterval(() => {
+    timeLeft--; if(document.getElementById("timerValue")) document.getElementById("timerValue").innerText = timeLeft;
+    if(timeLeft <= 0) { 
+        clearInterval(timerInterval); 
+        modalContent.innerHTML = "<h2 style='color:red;'>HẾT GIỜ! ⏰</h2>";
+        setTimeout(() => { modal.classList.remove("active"); nextTurn(); }, 800);
+    }
+  }, 1000);
+}
+function movePlayer(index) {
+  const player = players[currentPlayer]; const princess = player.element;
+  const targetCell = document.getElementById("board").children[index];
+  const myNewPos = getPositionsForCount(players.filter(p => p.position === index).length + 1).pop(); 
+  const oldRect = princess.getBoundingClientRect(); const cellRect = targetCell.getBoundingClientRect();
+  const clone = princess.cloneNode(true);
+  clone.style.position = "fixed"; clone.style.left = oldRect.left + "px"; clone.style.top = oldRect.top + "px";
+  clone.style.zIndex = 10000; clone.style.transition = "left 0.8s ease-in-out, top 0.8s ease-in-out";
+  princess.style.visibility = "hidden"; document.body.appendChild(clone);
+  setTimeout(() => {
+    clone.classList.add('is-jumping'); 
+    clone.style.left = (cellRect.left + myNewPos.x) + "px";
+    clone.style.top = (cellRect.top + myNewPos.y) + "px";
+  }, 100);
+  setTimeout(() => {
+    const effect = document.createElement("div"); effect.className = "land-effect";
+    effect.style.borderColor = colors[currentPlayer];
+    effect.style.left = (cellRect.left + myNewPos.x + 8) + "px";
+    effect.style.top = (cellRect.top + myNewPos.y + 30) + "px";
+    document.body.appendChild(effect);
+    setTimeout(() => effect.remove(), 500);
+    document.body.removeChild(clone);
+    targetCell.appendChild(princess); princess.style.visibility = "visible";
+    const oldPos = player.position; player.position = index; player.order = Date.now();
+    arrangePlayersInCell(oldPos); arrangePlayersInCell(index);  
+    if(index === treasureIndex) {
+        treasureFound = true;
+        const tr = document.createElement("div"); tr.className = "treasure-item"; tr.innerHTML = "💰";
+        targetCell.appendChild(tr);
+        setTimeout(() => celebrate(), 500);
+    } else { nextTurn(); }
+  }, 900);
+}
+function nextTurn() { currentPlayer = (currentPlayer + 1) % 4; updateTurnUI(); }
+function updateTurnUI() { 
+  const indicator = document.getElementById("turnIndicator");
+  indicator.innerText = "Lượt: " + teamNames[currentPlayer];
+  indicator.style.color = colors[currentPlayer];
+  players.forEach((p, i) => { 
+    p.element.style.zIndex = (i === currentPlayer) ? "20" : "10"; 
+    p.element.classList.toggle("is-active-player", i === currentPlayer);
+  });
+}
+</script>
+</body>
+</html>
