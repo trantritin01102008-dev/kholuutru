@@ -82,7 +82,6 @@ body{
 .banner{ position: relative; font-size:28px; font-weight:bold; color:#d63384; text-shadow:0 0 15px #ff99cc; white-space: nowrap; }
 .board{ display:grid; grid-template-columns:repeat(5,60px); gap: 10px; margin-top:12px; }
 
-/* HIỆU ỨNG TRÁI TIM DƯỚI CHÂN */
 .land-effect { 
   position: fixed; 
   width: 25px; height: 25px; 
@@ -197,7 +196,6 @@ initSakura();
 let currentPlayer = 0;
 const colors = ["#ff4d4d","#4d94ff","#4dcc4d","#ffcc00"];
 let teamNames = []; let players = []; 
-// FIX: KHO BÁU LUÔN Ở Ô SỐ 0
 let treasureIndex = 0; 
 let treasureFound = false; let timerInterval = null; let cellQuestions = [];
 
@@ -357,8 +355,13 @@ function selectCell(index) {
   const player = players[currentPlayer];
   const r = Math.floor(player.position/5), c = player.position%5;
   const nr = Math.floor(index/5), nc = index%5;
-  // Cho phép click vào chính ô hiện tại nếu đó là ô kho báu (ô 0)
-  if(Math.abs(r-nr) + Math.abs(c-nc) === 1 || (player.position === index && index === treasureIndex)) showQuestion(index);
+  
+  // SỬA ĐỔI CHÍNH TẠI ĐÂY:
+  // Khoảng cách Manhattan phải bằng 1 (nghĩa là chỉ đi sang trái, phải, trên, dưới)
+  // Loại bỏ điều kiện cho phép click vào chính ô đang đứng (player.position === index)
+  if(Math.abs(r-nr) + Math.abs(c-nc) === 1) {
+    showQuestion(index);
+  }
 }
 function triggerCosmicVisual(onEffectDone) {
   const container = document.getElementById('cosmicEffect');
