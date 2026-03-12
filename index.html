@@ -45,7 +45,9 @@ body{
   transform: translateZ(0); 
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
-  display: flex; justify-content: center; align-items: center;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;     
   background: rgba(0, 0, 0, 0.7);
 }
 #welcomeMsgContainer.active { opacity: 1; pointer-events: auto; }
@@ -54,8 +56,9 @@ body{
   color: #ffffff; font-weight: bold; font-size: 32px;
   text-align: left; 
   text-shadow: 0 0 20px #ff6fa5;
-  width: 90vw;
+  display: inline-block; 
 }
+
 .welcome-line { display: block; margin: 8px 0; }
 #line1 { margin-left: 0; }
 #line2 { margin-left: 40px; }
@@ -185,32 +188,33 @@ body{
 <div class="modalOverlay" id="modal"><div class="modalBox" id="modalContent"></div></div>
 
 <script>
-// CÂU HỎI XÁC SUẤT ĐẶC BIỆT
 const specialProbabilityQuestion = {
-  q: "Có 1 ô kho báu trong tổng số 25 ô trên bàn này, xác suất để đạp ô kho báu trong 1 lượt đi đầu tiên là:",
-  a: ["0%", "5%", "10%", "100%"],
+  q: "<strong>Câu hỏi gợi ý</strong><br>Có 1 ô kho báu trong tổng số 25 ô trên bàn này, xác suất để đạp ô kho báu trong 1 lượt đi đầu tiên là:",
+  a: ["0%", "8%", "10%", "100%"],
   c: 0
 };
 
-// CÂU HỎI HÌNH ẢNH ĐẶC BIỆT (TAY DIỆU LINH)
 const specialImageQuestion = {
-  q: "Game hay quá, cho 1 like:)<br>Tay ai vậy ta??",
+  q: "<div style='text-align:center;'>Game hay quá, cho 1 like:)<br>Tay ai vậy ta??</div>",
   img: "hinhtaydieulinh.jpg",
   a: ["Thảo Lam", "The Ni", "Diệu Linh", "Lan Thương"],
   c: 2
 };
 
-// CÂU HỎI CA SĨ ĐẶC BIỆT (CHUYỂN TỪ NGÂN HÀNG SANG ĐẶC BIỆT)
 const specialSingerQuestion = {
   q: "Các bạn đoán chút nữa ai sẽ hát =))",
   a: ["Phi Sơn", "Quốc trid", "Phát", "Thấy ghê"],
   c: 2
 };
 
-// NGÂN HÀNG CÂU HỎI
+const fixedHintQuestion = {
+  q: "Hãy nhìn về nguồn cội để tìm thấy kho báu",
+  isHint: true
+};
+
 const questionBank = [
   {
-    q: "Ảnh này hồi nào vậy nhỉ??",
+    q: "<div style='text-align:center;'>Hình này chụp hồi nào vậy nhỉ??</div>",
     img: "hinhtapthe.jpg",
     a: ["4/10", "5/10", "6/10", "7/10"],
     c: 1
@@ -231,7 +235,7 @@ const questionBank = [
     c: 1
   },
   {
-    q: "Tìm x: 3+x=8",
+    q: "Tìm x: <br><br> 3 + x = 8",
     a: ["8/3", "8-3", "8.3", "3-8"],
     c: 1
   },
@@ -256,7 +260,7 @@ const questionBank = [
     c: 2
   },
   {
-    q: "Thân em vừa trắng lại vừa tròn,<br>Bảy nổi ba chìm với nước non.<br>Rắn nát mặc dầu tay kẻ nặn,<br>Mà em vẫn giữ tấm lòng son.<br>Đoạn thơ trên gắn liền với:", 
+    q: "<div style='text-align:center;'>Thân em vừa trắng lại vừa tròn,<br>Bảy nổi ba chìm với nước non.<br>Rắn nát mặc dầu tay kẻ nặn,<br>Mà em vẫn giữ tấm lòng son.</div><div style='text-align:left; margin-top:10px;'>Đoạn thơ trên gắn liền với?</div>", 
     a: ["Bánh trôi nước", "Các bạn nữ a10", "Hình ảnh đàn ông", "Anh Nguyên"], 
     c: 1 
   },
@@ -276,7 +280,7 @@ const questionBank = [
     c: 2
   },
   {
-    q: "Còn ai trồng HOA lớp này???",
+    q: "<div style='text-align:center;'>Còn ai trồng HOA lớp này???</div>",
     a: ["Các bạn nam", "Thầy Nang", "Anh thợ làm vườn", "Cả 3 đáp án A, B, C"],
     c: 3
   },
@@ -296,30 +300,24 @@ const questionBank = [
     c: 0
   },
   {
-    q: "Nước nào giàu nhất thế giới?",
-    a: ["Mỹ", "Trung Quốc", "Nhật Bản", "Indo"],
-    c: 3
-  },
-  {
     q: "Ba Nang hay gọi bạn Châu là gì ta!!??",
     ans: "Châu chấu",
     isEssay: true 
   },
   {
-    q: "Đuổi hình bắt chữ",
+    q: "",
     img: "hinhkieuhanh.png",
     ans: "Kiều Hạnh",
     isEssay: true
   },
   {
-    q: "Đuổi hình bắt chữ",
+    q: "",
     img: "hinhlanthuong.png",
     ans: "Lan Thương",
     isEssay: true
   }
 ];
 
-// CẬP NHẬT CÂU HỎI KHO BÁU
 const treasureQuestion = { 
   q: "Đố mấy bạn biết game này ai code?", 
   ans: "Ipin" 
@@ -356,37 +354,21 @@ function startGame() {
 function initGameStructure() {
   const board = document.getElementById("board"); board.innerHTML = "";
   let shuffledQuestions = [...questionBank].sort(() => Math.random() - 0.5);
-  
-  // Vùng 9 ô cuối (vùng đỏ)
-  const redZoneIndices = [12, 13, 14, 17, 18, 19, 22, 23, 24];
-  
-  // Trộn vùng đỏ để đặt 3 câu hỏi đặc biệt ngẫu nhiên trong 9 ô này
-  let zoneIndices = [...redZoneIndices].sort(() => Math.random() - 0.5);
+  const redZonePool = [12, 13, 14, 17, 18, 19, 22, 23];
+  let zoneIndices = [...redZonePool].sort(() => Math.random() - 0.5);
   const specialProbPos = zoneIndices[0];
   const specialImgPos = zoneIndices[1];
   const specialSingerPos = zoneIndices[2];
-  
   let qPointer = 0;
   for(let i=0; i<25; i++) {
     const cell = document.createElement("div"); cell.className = "cell";
     cell.onclick = () => selectCell(i); board.appendChild(cell);
-    
-    if(i === treasureIndex) { 
-      cellQuestions[i] = { ...treasureQuestion, isTreasure: true, answered: false }; 
-    }
-    else if(i === specialProbPos) {
-      cellQuestions[i] = { ...specialProbabilityQuestion, answered: false };
-    }
-    else if(i === specialImgPos) {
-      cellQuestions[i] = { ...specialImageQuestion, answered: false };
-    }
-    else if(i === specialSingerPos) {
-      cellQuestions[i] = { ...specialSingerQuestion, answered: false };
-    }
-    else { 
-      cellQuestions[i] = { ...shuffledQuestions[qPointer % shuffledQuestions.length], answered: false }; 
-      qPointer++; 
-    }
+    if(i === treasureIndex) { cellQuestions[i] = { ...treasureQuestion, isTreasure: true, answered: false }; }
+    else if(i === 24) { cellQuestions[i] = { ...fixedHintQuestion, answered: false }; }
+    else if(i === specialProbPos) { cellQuestions[i] = { ...specialProbabilityQuestion, answered: false }; }
+    else if(i === specialImgPos) { cellQuestions[i] = { ...specialImageQuestion, answered: false }; }
+    else if(i === specialSingerPos) { cellQuestions[i] = { ...specialSingerQuestion, answered: false }; }
+    else { cellQuestions[i] = { ...shuffledQuestions[qPointer % shuffledQuestions.length], answered: false }; qPointer++; }
   }
 }
 
@@ -420,14 +402,12 @@ function runCinematicIntro() {
   setTimeout(() => container.className = "mainContainer cam-pos-bot-right", 4500);
   setTimeout(() => { container.className = "mainContainer cam-pos-start"; spawnPlayers(); }, 6500);
   setTimeout(() => { container.className = "mainContainer cam-pos-full"; }, 8500);
-  
   setTimeout(() => {
     welcome.classList.add("active");
     typeWriter("Chào mừng", "line1", 700);
     setTimeout(() => typeWriter("đến với", "line2", 700), 800);
     setTimeout(() => typeWriter("bình nguyên", "line3", 700), 1600);
     setTimeout(() => typeWriter("vô tận...", "line4", 700), 2400);
-    
     setTimeout(() => { 
         welcome.classList.remove("active"); 
         setTimeout(() => { updateTurnUI(); }, 1000); 
@@ -545,16 +525,22 @@ function showQuestion(index) {
   if(qData.answered && !qData.isTreasure) { movePlayer(index); return; }
   const modal = document.getElementById("modal");
   const modalContent = document.getElementById("modalContent");
-  
+  if(qData.isHint) {
+    modalContent.innerHTML = `<h3 style="color:#d63384; margin-bottom:10px;">GỢI Ý 💡</h3><p class="question-text" style="text-align:center; font-weight:bold;">${qData.q}</p>`;
+    modal.classList.add("active");
+    setTimeout(() => { modal.classList.remove("active"); movePlayer(index); }, 4000);
+    return; 
+  }
   let html = `<div class="timer-display">⏱️ <span id="timerValue">15</span>s</div>`;
   if (qData.img) html += `<img src="${qData.img}" class="question-img" alt="Câu hỏi">`;
-  
   if (qData.isTreasure || qData.isEssay) {
-    let title = qData.isTreasure ? "💎 KHO BÁU! 💎" : "CÂU HỎI TỰ LUẬN";
-    html += `<h3 style="color:#d63384;">${title}</h3><p class="question-text">${qData.q}</p>`;
+    let title = "CÂU HỎI TỰ LUẬN";
+    if (qData.isTreasure) { title = "💎 KHO BÁU! 💎"; } 
+    else if (qData.img) { title = "ĐUỔI HÌNH BẮT CHỮ"; } 
+
+    html += `<h3 style="color:#d63384;">${title}</h3><div class="question-text">${qData.q}</div>`;
     html += `<input type="text" id="essayAns" class="essayInput" placeholder="Nhập đáp án..."><br><button class="setupBtn" id="submitEssay">XÁC NHẬN</button>`;
     modalContent.innerHTML = html;
-
     document.getElementById("submitEssay").onclick = () => {
       const userAns = document.getElementById("essayAns").value.trim().toLowerCase();
       clearInterval(timerInterval); modal.classList.remove("active");
@@ -572,7 +558,7 @@ function showQuestion(index) {
       });
     };
   } else {
-    html += `<p class="question-text">${qData.q}</p><div class="optionsGrid" id="optionsArea"></div>`;
+    html += `<div class="question-text">${qData.q}</div><div class="optionsGrid" id="optionsArea"></div>`;
     modalContent.innerHTML = html;
     qData.a.forEach((txt, i) => {
       const btn = document.createElement("button"); btn.className = "answerBtn";
@@ -597,15 +583,10 @@ function showQuestion(index) {
   }
   modal.classList.add("active");
   if (window.MathJax) { MathJax.typesetPromise([modalContent]); }
-
   let timeLeft = 15;
   timerInterval = setInterval(() => {
     timeLeft--; if(document.getElementById("timerValue")) document.getElementById("timerValue").innerText = timeLeft;
-    if(timeLeft <= 0) { 
-        clearInterval(timerInterval); 
-        modalContent.innerHTML = "<h2 style='color:red;'>HẾT GIỜ! ⏰</h2>";
-        setTimeout(() => { modal.classList.remove("active"); nextTurn(); }, 800);
-    }
+    if(timeLeft <= 0) { clearInterval(timerInterval); modalContent.innerHTML = "<h2 style='color:red;'>HẾT GIỜ! ⏰</h2>"; setTimeout(() => { modal.classList.remove("active"); nextTurn(); }, 800); }
   }, 1000);
 }
 
