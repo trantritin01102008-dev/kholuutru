@@ -136,7 +136,14 @@ body{
 @keyframes absorb { 0% { transform: translate(-50%, -50%) scale(1.5) rotate(0deg); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-50%, -50%) scale(0) rotate(720deg); opacity: 1; } }
 .cosmic-explosion { position: absolute; top: 50%; left: 50%; width: 10px; height: 10px; background: radial-gradient(circle, #fff 0%, #ff9ecf 40%, transparent 70%); border-radius: 50%; transform: translate(-50%, -50%) scale(0); z-index: 20001; }
 @keyframes release { 0% { transform: translate(-50%, -50%) scale(0); opacity: 1; } 40% { transform: translate(-50%, -50%) scale(100); opacity: 1; } 100% { transform: translate(-50%, -50%) scale(300); opacity: 0; } }
+
+.question-img { max-width: 100%; max-height: 200px; border-radius: 15px; margin: 10px auto; display: block; border: 2px solid #ffb3d9; }
+.question-text { font-size: 16px; line-height: 1.4; color: #333; margin-bottom: 15px; text-align: left; padding: 0 10px; }
 </style>
+
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
 </head>
 
 <body>
@@ -178,8 +185,145 @@ body{
 <div class="modalOverlay" id="modal"><div class="modalBox" id="modalContent"></div></div>
 
 <script>
-const questionBank = [{q:"Mặt trời mọc ở hướng nào?", a:["Đông","Tây","Nam","Bắc"], c:0},{q:"Số nào lớn nhất trong dãy?", a:["10","20","5","15"], c:1},{q:"Màu lá cây quang hợp là?", a:["Xanh lá","Đỏ","Vàng","Tím"], c:0},{q:"Con vật nào kêu Gâu Gâu?", a:["Mèo","Chó","Gà","Vịt"], c:1},{q:"Trái đất có hình gì?", a:["Vuông","Tròn","Cầu","Phẳng"], c:2},{q:"Thủ đô Việt Nam là?", a:["Hà Nội","TP.HCM","Đà Nẵng","Cần Thơ"], c:0},{q:"Một tuần có bao nhiêu ngày?", a:["5","6","7","8"], c:2},{q:"Xe đạp phổ thông có mấy bánh?", a:["1","2","3","4"], c:1},{q:"Quả gì cắt ngang có hình sao?", a:["Vuông","Cam","Ổi","Xoài"], c:0},{q:"Con gì hay kêu Cạp Cạp?", a:["Vịt","Ngan","Ngỗng","Gà"], c:0},{q:"Cầu vồng có mấy màu chính?", a:["5","6","7","9"], c:2},{q:"Hoa gì nở trong đầm mùa hè?", a:["Hoa Sen","Hoa Mai","Hoa Hồng","Hoa Lan"], c:0},{q:"Chữ cái đầu bảng chữ cái VN?", a:["A","Ă","Â","B"], c:0},{q:"Con gì mang nhà trên lưng?", a:["Ốc sên","Rùa","Cả hai","Sên trần"], c:2},{q:"Quả gì vỏ đỏ ruột trắng hạt đen?", a:["Dưa hấu","Thanh long","Táo","Lê"], c:1},{q:"7 cộng 8 bằng bao nhiêu?", a:["14","15","16","17"], c:1},{q:"Vua của rừng xanh là loài nào?", a:["Hổ","Sư tử","Voi","Gấu"], c:1},{q:"Tháng nào thường có 28 ngày?", a:["Tháng 1","Tháng 2","Tháng 3","Tháng 4"], c:1},{q:"Hành tinh gần mặt trời nhất?", a:["Sao Kim","Sao Thủy","Trái Đất","Sao Hỏa"], c:1},{q:"Con gì biết bay và hót?", a:["Chim","Sóc","Cá","Chuột"], c:0},{q:"Dụng cụ nào dùng để cắt giấy?", a:["Bút","Thước","Kéo","Gôm"], c:2},{q:"Lá cờ VN có ngôi sao màu?", a:["Đỏ","Vàng","Trắng","Xanh"], c:1},{q:"Đỏ trộn với xanh dương ra màu?", a:["Tím","Cam","Xanh lá","Nâu"], c:0},{q:"Đại đương nào lớn nhất thế giới?", a:["Đại Tây Dương","Thái Bình Dương","Ấn Độ Dương","Bắc Băng Dương"], c:1}];
-const treasureQuestion = { q: "Câu hỏi cuối cùng: Ai là người xinh đẹp nhất thế gian? (Gợi ý: Công chúa)", ans: "công chúa" };
+// CÂU HỎI XÁC SUẤT ĐẶC BIỆT
+const specialProbabilityQuestion = {
+  q: "Có 1 ô kho báu trong tổng số 25 ô trên bàn này, xác suất để đạp ô kho báu trong 1 lượt đi đầu tiên là:",
+  a: ["0%", "5%", "10%", "100%"],
+  c: 0
+};
+
+// CÂU HỎI HÌNH ẢNH ĐẶC BIỆT (TAY DIỆU LINH)
+const specialImageQuestion = {
+  q: "Game hay quá, cho 1 like:)<br>Tay ai vậy ta??",
+  img: "hinhtaydieulinh.jpg",
+  a: ["Thảo Lam", "The Ni", "Diệu Linh", "Lan Thương"],
+  c: 2
+};
+
+// CÂU HỎI CA SĨ ĐẶC BIỆT (CHUYỂN TỪ NGÂN HÀNG SANG ĐẶC BIỆT)
+const specialSingerQuestion = {
+  q: "Các bạn đoán chút nữa ai sẽ hát =))",
+  a: ["Phi Sơn", "Quốc trid", "Phát", "Thấy ghê"],
+  c: 2
+};
+
+// NGÂN HÀNG CÂU HỎI
+const questionBank = [
+  {
+    q: "Ảnh này hồi nào vậy nhỉ??",
+    img: "hinhtapthe.jpg",
+    a: ["4/10", "5/10", "6/10", "7/10"],
+    c: 1
+  },
+  {
+    q: "Lớp mình có bao nhiêu bạn nữ 4 mắt?",
+    a: ["0", "15", "16", "17"],
+    c: 1
+  },
+  {
+    q: "Trung bình một ngày bạn Dũng với bạn Trí giao lưu võ thuật bao nhiêu lần?",
+    a: ["1", "2", "3", "Không đếm được, không đếm được"],
+    c: 3
+  },
+  {
+    q: "Tại sao lại là ngày Quốc tế Phụ nữ mà không phải ngày Quốc tế Con gái?",
+    a: ["Vì con gái không đẹp bằng phụ nữ", "Vì vào ngày này, đàn ông phải phụ nữ", "Vì phụ nữ nghe sang trọng hơn", "Vì vào ngày này, phụ nữ chỉ là phụ"],
+    c: 1
+  },
+  {
+    q: "Tìm x: 3+x=8",
+    a: ["8/3", "8-3", "8.3", "3-8"],
+    c: 1
+  },
+  {
+    q: "Tại sao vào ngày 8/3, các bạn nữ luôn sai nhỉ??",
+    a: ["Bởi vì đàn ông luôn đúng", "Sự bất bình đẳng trong giới tính", "Tại vì các bạn sai đẹp gíu", "Vì vào ngày này, các bạn nữ luôn sai các bạn nam làm việc"],
+    c: 2
+  },
+  {
+    q: "Công thức hóa học để tạo ra phụ nữ là:",
+    a: ["Photpho + hidro + uranium + nitơ + uranium", "Chì + kẽm + sắt + đồng", "Oxy + natri + lưu huỳnh + canxi", "Nhôm + carbon + kali + neon"],
+    c: 0
+  },
+  {
+    q: "Hôm nay là ngày của nhiễm sắc thể nào đây nhỉ??",
+    a: ["XY", "XX", "XYY", "XXY"],
+    c: 1
+  },
+  {
+    q: "Quốc gia nào to nhất thế giới?",
+    a: ["Liên bang Nga", "Trung Quốc", "Mông Cổ", "Ấn Độ"],
+    c: 2
+  },
+  {
+    q: "Thân em vừa trắng lại vừa tròn,<br>Bảy nổi ba chìm với nước non.<br>Rắn nát mặc dầu tay kẻ nặn,<br>Mà em vẫn giữ tấm lòng son.<br>Đoạn thơ trên gắn liền với:", 
+    a: ["Bánh trôi nước", "Các bạn nữ a10", "Hình ảnh đàn ông", "Anh Nguyên"], 
+    c: 1 
+  },
+  {
+    q: "Tổng năm sinh của tất cả các bạn nữ trong lớp là:", 
+    a: ["\\(\\int_{0}^{20} 2008 \\, dx\\)", "\\(\\int_{1}^{20} 2008 \\, dx\\)", "\\(\\int_{0}^{20} 2008x \\, dx\\)", "\\(\\int_{1}^{20} 2008x \\, dx\\)"], 
+    c: 0 
+  },
+  {
+    q: "Hôm nay là ngày gì vậy ta??",
+    a: ["8/3", "Ngày Quốc tế Phụ nữ", "Ngày các bạn nữ tặng quà các bạn nam", "Thứ sáu ngày 13"],
+    c: 3
+  },
+  {
+    q: "Quốc gia nào trên thế giới không có chị em phụ nữ?",
+    a: ["Việt Nam", "Mỹ", "Anh", "Trung Quốc"],
+    c: 2
+  },
+  {
+    q: "Còn ai trồng HOA lớp này???",
+    a: ["Các bạn nam", "Thầy Nang", "Anh thợ làm vườn", "Cả 3 đáp án A, B, C"],
+    c: 3
+  },
+  {
+    q: "Cái gì càng tặng cho phụ nữ ngày 8/3 thì bản thân càng có nhiều hơn?",
+    a: ["Tiền bạc", "Trang sức", "Tình cảm", "Đồ ăn"],
+    c: 2
+  },
+  {
+    q: "Trong 12 con giáp, con gì nổi tiếng nhờ phụ nữ?",
+    a: ["Con mèo", "Con heo", "Con khỉ", "Con dê"],
+    c: 3
+  },
+  {
+    q: "Con gái thích được tặng gì nhất vào ngày 8/3?",
+    a: ["Hoa và những lời chúc", "Vàng", "Iphone 17 pro max", "Áo quần"],
+    c: 0
+  },
+  {
+    q: "Nước nào giàu nhất thế giới?",
+    a: ["Mỹ", "Trung Quốc", "Nhật Bản", "Indo"],
+    c: 3
+  },
+  {
+    q: "Ba Nang hay gọi bạn Châu là gì ta!!??",
+    ans: "Châu chấu",
+    isEssay: true 
+  },
+  {
+    q: "Đuổi hình bắt chữ",
+    img: "hinhkieuhanh.png",
+    ans: "Kiều Hạnh",
+    isEssay: true
+  },
+  {
+    q: "Đuổi hình bắt chữ",
+    img: "hinhlanthuong.png",
+    ans: "Lan Thương",
+    isEssay: true
+  }
+];
+
+// CẬP NHẬT CÂU HỎI KHO BÁU
+const treasureQuestion = { 
+  q: "Đố mấy bạn biết game này ai code?", 
+  ans: "Ipin" 
+};
 
 function initSakura() {
     const container = document.getElementById('sakura-layer');
@@ -212,12 +356,37 @@ function startGame() {
 function initGameStructure() {
   const board = document.getElementById("board"); board.innerHTML = "";
   let shuffledQuestions = [...questionBank].sort(() => Math.random() - 0.5);
+  
+  // Vùng 9 ô cuối (vùng đỏ)
+  const redZoneIndices = [12, 13, 14, 17, 18, 19, 22, 23, 24];
+  
+  // Trộn vùng đỏ để đặt 3 câu hỏi đặc biệt ngẫu nhiên trong 9 ô này
+  let zoneIndices = [...redZoneIndices].sort(() => Math.random() - 0.5);
+  const specialProbPos = zoneIndices[0];
+  const specialImgPos = zoneIndices[1];
+  const specialSingerPos = zoneIndices[2];
+  
   let qPointer = 0;
   for(let i=0; i<25; i++) {
     const cell = document.createElement("div"); cell.className = "cell";
     cell.onclick = () => selectCell(i); board.appendChild(cell);
-    if(i === treasureIndex) { cellQuestions[i] = { ...treasureQuestion, isTreasure: true, answered: false }; }
-    else { cellQuestions[i] = { ...shuffledQuestions[qPointer % shuffledQuestions.length], answered: false }; qPointer++; }
+    
+    if(i === treasureIndex) { 
+      cellQuestions[i] = { ...treasureQuestion, isTreasure: true, answered: false }; 
+    }
+    else if(i === specialProbPos) {
+      cellQuestions[i] = { ...specialProbabilityQuestion, answered: false };
+    }
+    else if(i === specialImgPos) {
+      cellQuestions[i] = { ...specialImageQuestion, answered: false };
+    }
+    else if(i === specialSingerPos) {
+      cellQuestions[i] = { ...specialSingerQuestion, answered: false };
+    }
+    else { 
+      cellQuestions[i] = { ...shuffledQuestions[qPointer % shuffledQuestions.length], answered: false }; 
+      qPointer++; 
+    }
   }
 }
 
@@ -355,13 +524,7 @@ function selectCell(index) {
   const player = players[currentPlayer];
   const r = Math.floor(player.position/5), c = player.position%5;
   const nr = Math.floor(index/5), nc = index%5;
-  
-  // SỬA ĐỔI CHÍNH TẠI ĐÂY:
-  // Khoảng cách Manhattan phải bằng 1 (nghĩa là chỉ đi sang trái, phải, trên, dưới)
-  // Loại bỏ điều kiện cho phép click vào chính ô đang đứng (player.position === index)
-  if(Math.abs(r-nr) + Math.abs(c-nc) === 1) {
-    showQuestion(index);
-  }
+  if(Math.abs(r-nr) + Math.abs(c-nc) === 1) showQuestion(index);
 }
 function triggerCosmicVisual(onEffectDone) {
   const container = document.getElementById('cosmicEffect');
@@ -382,13 +545,22 @@ function showQuestion(index) {
   if(qData.answered && !qData.isTreasure) { movePlayer(index); return; }
   const modal = document.getElementById("modal");
   const modalContent = document.getElementById("modalContent");
-  if (qData.isTreasure) {
-    modalContent.innerHTML = `<div class="timer-display">⏱️ <span id="timerValue">15</span>s</div><h3 style="color:#d63384;">💎 KHO BÁU! 💎</h3><p>${qData.q}</p><input type="text" id="essayAns" class="essayInput"><br><button class="setupBtn" id="submitEssay">XÁC NHẬN</button>`;
+  
+  let html = `<div class="timer-display">⏱️ <span id="timerValue">15</span>s</div>`;
+  if (qData.img) html += `<img src="${qData.img}" class="question-img" alt="Câu hỏi">`;
+  
+  if (qData.isTreasure || qData.isEssay) {
+    let title = qData.isTreasure ? "💎 KHO BÁU! 💎" : "CÂU HỎI TỰ LUẬN";
+    html += `<h3 style="color:#d63384;">${title}</h3><p class="question-text">${qData.q}</p>`;
+    html += `<input type="text" id="essayAns" class="essayInput" placeholder="Nhập đáp án..."><br><button class="setupBtn" id="submitEssay">XÁC NHẬN</button>`;
+    modalContent.innerHTML = html;
+
     document.getElementById("submitEssay").onclick = () => {
       const userAns = document.getElementById("essayAns").value.trim().toLowerCase();
       clearInterval(timerInterval); modal.classList.remove("active");
       triggerCosmicVisual(() => {
-        if(userAns === qData.ans) {
+        if(userAns === qData.ans.toLowerCase()) {
+          if(!qData.isTreasure) qData.answered = true;
           modalContent.innerHTML = "<h2 style='color:green;'>ĐÚNG RỒI! 👑</h2>";
           modal.classList.add("active");
           setTimeout(() => { modal.classList.remove("active"); movePlayer(index); }, 800);
@@ -400,7 +572,8 @@ function showQuestion(index) {
       });
     };
   } else {
-    modalContent.innerHTML = `<div class="timer-display">⏱️ <span id="timerValue">15</span>s</div><h3 style="color:#d63384;">${qData.q}</h3><div class="optionsGrid" id="optionsArea"></div>`;
+    html += `<p class="question-text">${qData.q}</p><div class="optionsGrid" id="optionsArea"></div>`;
+    modalContent.innerHTML = html;
     qData.a.forEach((txt, i) => {
       const btn = document.createElement("button"); btn.className = "answerBtn";
       btn.innerHTML = `<span>${["A","B","C","D"][i]}</span> ${txt}`;
@@ -423,6 +596,8 @@ function showQuestion(index) {
     });
   }
   modal.classList.add("active");
+  if (window.MathJax) { MathJax.typesetPromise([modalContent]); }
+
   let timeLeft = 15;
   timerInterval = setInterval(() => {
     timeLeft--; if(document.getElementById("timerValue")) document.getElementById("timerValue").innerText = timeLeft;
